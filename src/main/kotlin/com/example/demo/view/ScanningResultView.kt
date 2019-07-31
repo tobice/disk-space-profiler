@@ -10,18 +10,26 @@ class ScanningResultView : View() {
 
     override val root = vbox {
         label("Display files below")
-        bindChildren(selectedNodeModel.childNodes) {
-            hbox {
-                if (it.file.isDirectory) {
-                    hyperlink(it.file.name) {
-                        action {
-                            appViewModel.setSelectedNode(it)
+        button("Go up") {
+            enableWhen(appViewModel.nodeStack.sizeProperty().greaterThan(0))
+            action {
+                appViewModel.goUp()
+            }
+        }
+        vbox {
+            bindChildren(selectedNodeModel.childNodes) {
+                hbox {
+                    if (it.file.isDirectory) {
+                        hyperlink(it.file.name) {
+                            action {
+                                appViewModel.setSelectedNode(it)
+                            }
                         }
+                    } else {
+                        label(it.file.name)
                     }
-                } else {
-                    label(it.file.name)
+                    label(getDisplayFileSize(it.size))
                 }
-                label(getDisplayFileSize(it.size))
             }
         }
     }

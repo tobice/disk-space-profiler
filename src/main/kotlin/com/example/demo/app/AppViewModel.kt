@@ -1,6 +1,7 @@
 package com.example.demo.app
 
 import javafx.beans.property.*
+import javafx.collections.FXCollections
 import tornadofx.*
 import java.io.File
 
@@ -12,6 +13,8 @@ class AppViewModel : ViewModel() {
     private val status = ReadOnlyObjectWrapper<AppStatus>()
     private val targetDirectory = ReadOnlyObjectWrapper<File>()
     private val runningSize = ReadOnlyLongWrapper()
+
+    val nodeStack = SimpleListProperty<Node>(FXCollections.observableArrayList())
 
     private var scanTask : ScanTask? = null
 
@@ -34,7 +37,15 @@ class AppViewModel : ViewModel() {
     }
 
     fun setSelectedNode(node: Node) {
+        nodeStack.add(selectedNodeModel.item)
         selectedNodeModel.item = node
+    }
+
+    fun goUp() {
+        if (!nodeStack.isEmpty()) {
+            selectedNodeModel.item = nodeStack.last()
+            nodeStack.removeAt(nodeStack.lastIndex)
+        }
     }
 
     fun startScanning() {
