@@ -1,40 +1,35 @@
 package com.example.demo.app
 
+import javafx.beans.property.SimpleLongProperty
 import javafx.concurrent.Task
+import tornadofx.*
 import java.io.File
 import java.nio.file.Files
-import java.util.*
 
 /** TODO(tobik): Add JavaDoc here. */
 class ScanTask(private val rootDirectory: File) : Task<Unit>() {
 
-    val rootNode = Node(rootDirectory)
-
-    var size: Long = 0
+    var runningSizeProperty = SimpleLongProperty()
+    var rootNode : Node? = null
 
     override fun call() {
-        val stack = Stack<Node>()
-        stack.add(rootNode)
+        rootNode = scanFile(rootDirectory)
+    }
 
-        while (!stack.empty()) {
-            if (isCancelled) {
-                return
-            }
+    private fun scanFile(file : File) : Node? {
+        if (file.isFile) {
+            runningSizeProperty.value += file.length()
+        }
 
-            val node = stack.pop()
-            val file = node.file
-
-            if (file.isFile) {
-                size += file.length()
-                println(size)
-            }
-
-            when {
-                Files.isSymbolicLink(file.toPath()) -> {}
-                file.isFile -> node.increaseSize(file.length())
-                file.isDirectory -> file.listFiles()?.forEach { stack.push(Node(it, node)) }
-                else -> println("Found $file which is neither an ordinary file nor a directory. " +
+        return when {
+            isCancelled -> null
+            Files.isSymbolicLink(file.toPath()) || file.isFile -> Node(file)
+            file.isDirectory ->
+                Node(file, file.listFiles()?.mapNotNull(this::scanFile) ?: emptyList())
+            else -> {
+                println("Found $file which is neither an ordinary file nor a directory. " +
                         "Not sure what to do.")
+                return null
             }
         }
     }

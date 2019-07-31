@@ -9,35 +9,8 @@ import javafx.collections.ObservableList
 import tornadofx.*
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 
-class Node(val file: File, val parent: Node? = null) {
-    private var sizeInBytes : Long =  0
-    private val childNodes = ArrayList<Node>()
-
-    val childNodesForUi : ObservableList<Node> = FXCollections.observableArrayList<Node>()
-    val sizeInBytesForUi = SimpleIntegerProperty()
-
-    init {
-        childNodesForUi.addListener(ListChangeListener { println("Added node") })
-    }
-
-    fun increaseSize(bytes : Long) {
-        sizeInBytes += bytes
-        parent?.increaseSize(bytes)
-
-        runLater {
-            sizeInBytesForUi += bytes
-        }
-    }
-
-    fun addFile(file : File) : Node {
-        val node = Node(file, this)
-        childNodes.add(node)
-
-        runLater {
-            childNodesForUi.add(node)
-        }
-
-        return node
-    }
+class Node(val file: File, val childNodes: List<Node> = emptyList()) {
+    val size: Long = if (file.isFile) file.length() else childNodes.map { node -> node.size }.sum()
 }

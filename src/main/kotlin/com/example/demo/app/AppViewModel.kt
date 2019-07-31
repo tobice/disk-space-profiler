@@ -1,41 +1,46 @@
 package com.example.demo.app
 
-import javafx.beans.property.ReadOnlyObjectProperty
-import javafx.beans.property.ReadOnlyObjectWrapper
-import javafx.beans.property.SimpleListProperty
+import javafx.beans.property.*
 import tornadofx.*
 import java.io.File
 
 class AppViewModel : ViewModel() {
+    private val selectedNodeModel: SelectedNodeModel by inject()
+
+    private val throttler = Throttler(200)
+
     private val status = ReadOnlyObjectWrapper<AppStatus>()
     private val targetDirectory = ReadOnlyObjectWrapper<File>()
-    private val selectedNode = ReadOnlyObjectWrapper<Node>()
-
-    // val nodes ObservableList<Node>: bind { SimpleListProperty(selectedNode.readOnlyProperty.select { it -> it.childNodesForUi }) }
+    private val runningSize = ReadOnlyLongWrapper()
 
     private var scanTask : ScanTask? = null
 
     init {
         status.value = AppStatus.WELCOME_SCREEN
-        selectedNode.value = Node(File("/"))
     }
+
+    // TODO: change ViewModel to Controller
+    // TODO: introduce view models for properties
+    // TODO: implement going up
 
     fun getStatus(): ReadOnlyObjectProperty<AppStatus> = status.readOnlyProperty
 
     fun getTargetDirectory(): ReadOnlyObjectProperty<File> = targetDirectory.readOnlyProperty
 
-    fun getSelectedNode(): ReadOnlyObjectProperty<Node> = selectedNode.readOnlyProperty
+    fun getRunningSize(): ReadOnlyLongProperty = runningSize.readOnlyProperty
 
     fun setTargetDirectory(file: File) {
         targetDirectory.value = file
+    }
+
+    fun setSelectedNode(node: Node) {
+        selectedNodeModel.item = node
     }
 
     fun startScanning() {
         status.value = AppStatus.SCANNING_IN_PROGRESS
 
         val scanTask = ScanTask(targetDirectory.value)
-
-        selectedNode.value = scanTask.rootNode
 
         scanTask.setOnCancelled {
             println("cancelled")
@@ -44,18 +49,30 @@ class AppViewModel : ViewModel() {
 
         scanTask.setOnFailed{
             println("failed")
-            scanTask.exception.printStackTrace()
+            scanTask.exception.printStackTrace() // This is normally swallowed.
             status.value = AppStatus.SCANNING_FAILED
         }
 
         scanTask.setOnSucceeded{
             println("succeeded")
             status.value = AppStatus.SCANNING_FINISHED
+            selectedNodeModel.item = scanTask.rootNode
         }
 
-        Thread(scanTask).start()
-
         this.scanTask = scanTask
+
+        runningSize.value = 0
+        scanTask.runningSizeProperty.addListener(
+                ChangeListener { _, _, value ->
+                    throttler.invoke {
+                        runLater {
+                            runningSize.value = value.toLong()
+                            println("Listening to change: $value")
+                        }
+                    }
+                })
+
+        Thread(scanTask).start()
     }
 
     fun cancelScanning() {
