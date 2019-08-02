@@ -1,5 +1,0 @@
-package com.example.demo.app
-
-enum class AppStatus {
-    WELCOME_SCREEN, SCANNING_IN_PROGRESS, SCANNING_FAILED, SCANNING_CANCELLED, SCANNING_FINISHED
-}

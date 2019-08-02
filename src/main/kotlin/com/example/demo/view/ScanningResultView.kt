@@ -1,19 +1,21 @@
 package com.example.demo.view
 
+import com.example.demo.app.AppController
 import com.example.demo.app.AppViewModel
 import com.example.demo.app.SelectedNodeModel
+import com.example.demo.app.getDisplayFileSize
 import tornadofx.*
 
 class ScanningResultView : View() {
     private val appViewModel: AppViewModel by inject()
+    private val appController: AppController by inject()
     private val selectedNodeModel : SelectedNodeModel by inject()
 
     override val root = vbox {
-        label("Display files below")
         button("Go up") {
-            enableWhen(appViewModel.nodeStack.sizeProperty().greaterThan(0))
+            enableWhen(appViewModel.directoryStack.sizeProperty().greaterThan(0))
             action {
-                appViewModel.goUp()
+                appController.changeToParentDirectory()
             }
         }
         vbox {
@@ -22,7 +24,7 @@ class ScanningResultView : View() {
                     if (it.file.isDirectory) {
                         hyperlink(it.file.name) {
                             action {
-                                appViewModel.setSelectedNode(it)
+                                appController.changeToChildDirectory(it)
                             }
                         }
                     } else {
