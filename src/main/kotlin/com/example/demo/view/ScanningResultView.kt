@@ -12,6 +12,8 @@ class ScanningResultView : View() {
     private val selectedNodeModel : SelectedNodeModel by inject()
 
     override val root = vbox {
+        id = "scanningResultView"
+
         button("Go up") {
             enableWhen(appViewModel.directoryStack.sizeProperty().greaterThan(0))
             action {

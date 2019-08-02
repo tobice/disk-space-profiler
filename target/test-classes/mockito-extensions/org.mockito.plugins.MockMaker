@@ -1,0 +1,2 @@
+# This allows Mockito to mock final classes #sorcery
+mock-maker-inline

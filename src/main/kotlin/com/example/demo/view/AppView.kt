@@ -49,7 +49,7 @@ class AppView : View("Hello World!") {
                     Status.WELCOME_SCREEN -> add(welcomeView)
                     Status.SCANNING_FINISHED -> add(scanningResultView)
                     Status.SCANNING_IN_PROGRESS -> add(scanningInProgressView)
-                    else -> label("don't know what to do")
+                    else -> label("Unsupported status: " + status.value)
                 }
             }
             add(welcomeView)

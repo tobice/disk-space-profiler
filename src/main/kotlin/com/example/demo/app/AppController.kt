@@ -31,6 +31,7 @@ class AppController : Controller() {
     }
 
     fun startScanning() {
+        // TODO: make sure that target directory is set.
         setStatus(Status.SCANNING_IN_PROGRESS)
 
         val scanTask = ScanTask(appViewModel.targetDirectory.value)
