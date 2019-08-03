@@ -4,9 +4,12 @@ import tornadofx.*
 import java.io.File
 import com.example.demo.app.AppViewModel.Status
 
+// TODO(tobik): Consider strict vs forgiving behavior for forbidden operations.
 class AppController : Controller() {
     private val appViewModel : AppViewModel by inject()
     private val selectedNodeModel: SelectedNodeModel by inject()
+
+    private val scanner: Scanner by inject()
 
     private val throttler = Throttler(200)
     private var scanTask : ScanTask? = null
@@ -17,6 +20,7 @@ class AppController : Controller() {
 
     fun changeToChildDirectory(node: Node) {
         // TODO: check if it's actually a child.
+        // TODO: Check the status
 
         appViewModel.directoryStack.add(selectedNodeModel.item)
         selectedNodeModel.item = node
@@ -31,40 +35,42 @@ class AppController : Controller() {
     }
 
     fun startScanning() {
-        // TODO: make sure that target directory is set.
+        // TODO: Make sure that target directory is set.
         setStatus(Status.SCANNING_IN_PROGRESS)
 
-        val scanTask = ScanTask(appViewModel.targetDirectory.value)
+        val scanTask = scanner.createScanTask(appViewModel.targetDirectory.value)
+
+        // TODO: Always check that the current status is SCANNING_IN_PROGRESS.
 
         scanTask.setOnCancelled {
-            println("cancelled")
+            println("Scanning cancelled")
             setStatus(Status.SCANNING_CANCELLED)
         }
 
-        scanTask.setOnFailed{
-            println("failed")
-            scanTask.exception.printStackTrace() // This is normally swallowed.
+        scanTask.setOnFailed {
+            println("Scanning failed")
+            scanTask.exception?.printStackTrace() // This is normally swallowed.
             setStatus(Status.SCANNING_FAILED)
         }
 
-        scanTask.setOnSucceeded{
-            println("succeeded")
+        scanTask.setOnSucceeded {
+            println("Scanning succeeded")
             setStatus(Status.SCANNING_FINISHED)
-            selectedNodeModel.item = scanTask.rootNode
+            selectedNodeModel.item = scanTask.get()
+        }
+
+        scanTask.onRunningSizeUpdated = { runningSize ->
+            throttler.invoke {
+                runLater {
+                    appViewModel.runningSize.value = runningSize
+                }
+            }
         }
 
         appViewModel.runningSize.value = 0
-        scanTask.runningSizeProperty.addListener(
-                ChangeListener { _, _, value ->
-                    throttler.invoke {
-                        runLater {
-                            appViewModel.runningSize.value = value.toLong()
-                        }
-                    }
-                })
-
-        Thread(scanTask).start()
         this.scanTask = scanTask
+
+        scanner.startScanTask(scanTask)
     }
 
     fun cancelScanning() {

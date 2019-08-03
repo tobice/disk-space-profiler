@@ -11,6 +11,6 @@ import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
-class Node(val file: File, val childNodes: List<Node> = emptyList()) {
+data class Node(val file: File, val childNodes: List<Node> = emptyList()) {
     val size: Long = if (file.isFile) file.length() else childNodes.map { node -> node.size }.sum()
 }
