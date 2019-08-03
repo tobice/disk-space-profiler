@@ -4,8 +4,6 @@ import cz.tobice.projects.diskspaceprofiler.app.AppViewModel
 import cz.tobice.projects.diskspaceprofiler.app.getDisplayFileSize
 import tornadofx.*
 
-// TODO: move to a better place
-
 class ScanningInProgressView : View() {
     private val appViewModel: AppViewModel by inject()
 

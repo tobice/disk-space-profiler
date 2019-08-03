@@ -10,5 +10,5 @@ fun getDisplayFileSize(sizeInBytes: Long): String {
         displaySize /= 1000
         stack.pop()
     }
-    return "$displaySize ${stack.pop()}"
+    return "${Math.round(displaySize)} ${stack.pop()}"
 }

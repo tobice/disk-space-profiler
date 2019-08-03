@@ -6,6 +6,6 @@ class WelcomeView : View() {
     override val root = hbox {
         id = "welcomeView"
 
-        label("This is welcome screen")
+        label("Welcome to Disk File Profiler")
     }
 }

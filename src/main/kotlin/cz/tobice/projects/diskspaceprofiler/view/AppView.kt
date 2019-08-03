@@ -5,7 +5,7 @@ import cz.tobice.projects.diskspaceprofiler.app.AppController
 import cz.tobice.projects.diskspaceprofiler.app.AppViewModel
 import tornadofx.*
 
-class AppView : View("Hello World!") {
+class AppView : View("Disk Space Profiler") {
     private val appViewModel: AppViewModel by inject()
     private val appController: AppController by inject()
 
@@ -15,8 +15,10 @@ class AppView : View("Hello World!") {
 
     private val status = appViewModel.status
 
-    override val root = vbox {
-        hbox {
+    override val root = borderpane {
+        setPrefSize(800.0, 600.0)
+        top = hbox {
+            label(appViewModel.targetDirectory)
             button("Choose directory to analyze") {
                 enableWhen(status.isNotEqualTo(Status.SCANNING_IN_PROGRESS))
                 action {
@@ -40,9 +42,7 @@ class AppView : View("Hello World!") {
                 }
             }
         }
-        label(appViewModel.targetDirectory)
-
-        hbox {
+        center = hbox {
             status.onChange {
                 children.clear()
                 when (status.value) {
