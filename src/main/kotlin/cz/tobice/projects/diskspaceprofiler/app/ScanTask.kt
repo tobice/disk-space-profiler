@@ -2,6 +2,7 @@ package cz.tobice.projects.diskspaceprofiler.app
 
 import javafx.concurrent.Task
 import java.io.File
+import java.lang.AssertionError
 import java.nio.file.Files
 
 /** TODO(tobik): Add JavaDoc here. */

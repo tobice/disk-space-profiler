@@ -68,13 +68,21 @@ class AppControllerTest : ApplicationTest() {
         assertTrue { appViewModel.directoryStack.isEmpty() }
     }
 
-    // TODO(tobik): Test that it is not possible to start scanning without root directory.
+    @Test fun startScanning_whenNoTargetDirectoryIsProvided_doesNothing() {
+        appController.startScanning()
+        assertThat(appViewModel.status.value, equalTo(Status.WELCOME_SCREEN))
+    }
 
-    @Test fun startScanning_cancelScanning() {
+    @Test fun cancelScanning_cancelsTask() {
         appController.setTargetDirectory(SOME_ROOT_DIRECTORY)
         appController.startScanning()
         appController.cancelScanning()
         verify(scanTask).cancel()
+    }
+
+    @Test fun cancelScanning_whenNotScanning_doesNothing() {
+        appController.cancelScanning()
+        verify(scanTask, never()).cancel()
     }
 
     @Test fun scanTask_succeeds_controllerChangesStateToScanningFinished() {
@@ -123,8 +131,7 @@ class AppControllerTest : ApplicationTest() {
         assertThat(selectedNodeModel.item, equalTo(child))
     }
 
-    @Test
-    fun changeToChildDirectory_addSelectedToStack() {
+    @Test fun changeToChildDirectory_addSelectedToStack() {
         val child = Node(File("some_subdirectory"))
         val selected = Node(SOME_ROOT_DIRECTORY, childNodes = listOf(child))
         selectedNodeModel.item = selected
@@ -134,10 +141,17 @@ class AppControllerTest : ApplicationTest() {
         assertThat(appViewModel.directoryStack, hasItems(selected))
     }
 
-    // TODO(tobik): Add test for when the target node is not a child of the current selected node.
+    @Test fun changeToDirectory_whichIsNotAChild_doesNothing() {
+        val someDirectory = Node(File("some_directory"))
+        val selected = Node(SOME_ROOT_DIRECTORY)
+        selectedNodeModel.item = selected
 
-    @Test
-    fun changeToParentDirectory_updatesSelectedNodeModel() {
+        appController.changeToChildDirectory(someDirectory)
+
+        assertThat(selectedNodeModel.item, equalTo(selected))
+    }
+
+    @Test fun changeToParentDirectory_updatesSelectedNodeModel() {
         val selected = Node(File("some_subdirectory"))
         val parent = Node(SOME_ROOT_DIRECTORY, childNodes = listOf(selected))
         selectedNodeModel.item = selected
@@ -148,5 +162,12 @@ class AppControllerTest : ApplicationTest() {
         assertThat(selectedNodeModel.item, equalTo(parent))
     }
 
-    // TODO(tobik): Add test for when the stack is empty.
+    @Test fun changeToParentDirectory_noParentDirectory_doesNothing() {
+        val selected = Node(File("some_subdirectory"))
+        selectedNodeModel.item = selected
+
+        appController.changeToParentDirectory()
+
+        assertThat(selectedNodeModel.item, equalTo(selected))
+    }
 }

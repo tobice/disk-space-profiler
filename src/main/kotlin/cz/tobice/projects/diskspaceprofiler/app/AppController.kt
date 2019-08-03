@@ -3,15 +3,25 @@ package cz.tobice.projects.diskspaceprofiler.app
 import tornadofx.*
 import java.io.File
 import cz.tobice.projects.diskspaceprofiler.app.AppViewModel.Status
+import java.util.logging.Level
 
-// TODO(tobik): Consider strict vs forgiving behavior for forbidden operations.
+/**
+ * Main app controller which encapsulates the core app logic. It receives signals from the views
+ * and updates view models (which creates a nice unidirectional flow within the app).
+ *
+ * <p>The controller is very robust, protecting the app from ending up in an undefined state. If
+ * an unsupported operation is attempted, the controller silently stops it without crashing the app.
+ */
 class AppController : Controller() {
+    private val logger by logger()
+
     private val appViewModel : AppViewModel by inject()
     private val selectedNodeModel: SelectedNodeModel by inject()
 
     private val scanner: Scanner by inject()
-
     private val throttler = Throttler(200)
+
+    /** Background task performing the space analysis. */
     private var scanTask : ScanTask? = null
 
     fun setTargetDirectory(file: File) {
@@ -19,8 +29,10 @@ class AppController : Controller() {
     }
 
     fun changeToChildDirectory(node: Node) {
-        // TODO: check if it's actually a child.
-        // TODO: Check the status
+        if (!selectedNodeModel.childNodes.contains(node)) {
+            log.warning("Can't change to directory. Not a subdirectory")
+            return
+        }
 
         appViewModel.directoryStack.add(selectedNodeModel.item)
         selectedNodeModel.item = node
@@ -28,14 +40,20 @@ class AppController : Controller() {
 
     fun changeToParentDirectory() {
         val nodeStack = appViewModel.directoryStack
-        if (!nodeStack.isEmpty()) {
-            selectedNodeModel.item = nodeStack.last()
-            nodeStack.removeAt(nodeStack.lastIndex)
+        if (nodeStack.isEmpty()) {
+            log.warning("Can't change to parent directory. There is no parent directory")
+            return
         }
+
+        selectedNodeModel.item = nodeStack.last()
+        nodeStack.removeAt(nodeStack.lastIndex)
     }
 
     fun startScanning() {
-        // TODO: Make sure that target directory is set.
+        if (appViewModel.targetDirectory.value == null) {
+            log.warning("Can't start scanning if the target directory is not set")
+            return
+        }
 
         setStatus(Status.SCANNING_IN_PROGRESS)
         appViewModel.runningSize.value = 0
@@ -43,29 +61,43 @@ class AppController : Controller() {
 
         val scanTask = scanner.createScanTask(appViewModel.targetDirectory.value)
 
-        // TODO: Always check that the current status is SCANNING_IN_PROGRESS.
-
         scanTask.setOnCancelled {
-            println("Scanning cancelled")
-            setStatus(Status.SCANNING_CANCELLED)
+            if (getStatus() != Status.SCANNING_IN_PROGRESS) {
+                logger.warning("Scan task was cancelled but the status is {${getStatus()}")
+            } else {
+                logger.info("Scanning cancelled")
+                setStatus(Status.SCANNING_CANCELLED)
+            }
         }
 
         scanTask.setOnFailed {
-            println("Scanning failed")
-            scanTask.exception?.printStackTrace() // This is normally swallowed.
-            setStatus(Status.SCANNING_FAILED)
+            if (getStatus() != Status.SCANNING_IN_PROGRESS) {
+                logger.warning("Scan task failed but the status is {${getStatus()}")
+            } else {
+                logger.log(Level.SEVERE, "Scanning failed", scanTask.exception)
+                setStatus(Status.SCANNING_FAILED)
+            }
+
         }
 
         scanTask.setOnSucceeded {
-            println("Scanning succeeded")
-            setStatus(Status.SCANNING_FINISHED)
-            selectedNodeModel.item = scanTask.get()
+            if (getStatus() != Status.SCANNING_IN_PROGRESS) {
+                logger.warning("Scan task succeeded but the status is {${getStatus()}")
+            } else {
+                logger.info("Scanning succeeded")
+                setStatus(Status.SCANNING_FINISHED)
+                selectedNodeModel.item = scanTask.get()
+            }
         }
 
         scanTask.onRunningSizeUpdated = { runningSize ->
-            throttler.invoke {
-                runLater {
-                    appViewModel.runningSize.value = runningSize
+            if (getStatus() != Status.SCANNING_IN_PROGRESS) {
+                logger.warning("Running size updated but the status is {${getStatus()}")
+            } else {
+                throttler.invoke {
+                    runLater {
+                        appViewModel.runningSize.value = runningSize
+                    }
                 }
             }
         }
@@ -76,8 +108,14 @@ class AppController : Controller() {
     }
 
     fun cancelScanning() {
+        if (getStatus() != Status.SCANNING_IN_PROGRESS) {
+            logger.warning("Can't cancel scanning as scanning is not in progress.")
+            return
+        }
         scanTask?.cancel()
     }
+
+    private fun getStatus() = appViewModel.status.value
 
     private fun setStatus(status: Status) {
         appViewModel.status.value = status
