@@ -1,9 +1,9 @@
-package com.example.demo.view
+package cz.tobice.projects.diskspaceprofiler.view
 
-import com.example.demo.app.AppController
-import com.example.demo.app.AppViewModel
-import com.example.demo.app.SelectedNodeModel
-import com.example.demo.app.getDisplayFileSize
+import cz.tobice.projects.diskspaceprofiler.app.AppController
+import cz.tobice.projects.diskspaceprofiler.app.AppViewModel
+import cz.tobice.projects.diskspaceprofiler.app.SelectedNodeModel
+import cz.tobice.projects.diskspaceprofiler.app.getDisplayFileSize
 import tornadofx.*
 
 class ScanningResultView : View() {

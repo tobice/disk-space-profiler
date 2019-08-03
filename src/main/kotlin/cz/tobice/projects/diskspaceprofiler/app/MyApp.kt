@@ -1,6 +1,6 @@
-package com.example.demo.app
+package cz.tobice.projects.diskspaceprofiler.app
 
-import com.example.demo.view.AppView
+import cz.tobice.projects.diskspaceprofiler.view.AppView
 import javafx.application.Platform
 import tornadofx.App
 

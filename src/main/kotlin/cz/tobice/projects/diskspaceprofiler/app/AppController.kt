@@ -1,8 +1,8 @@
-package com.example.demo.app
+package cz.tobice.projects.diskspaceprofiler.app
 
 import tornadofx.*
 import java.io.File
-import com.example.demo.app.AppViewModel.Status
+import cz.tobice.projects.diskspaceprofiler.app.AppViewModel.Status
 
 // TODO(tobik): Consider strict vs forgiving behavior for forbidden operations.
 class AppController : Controller() {

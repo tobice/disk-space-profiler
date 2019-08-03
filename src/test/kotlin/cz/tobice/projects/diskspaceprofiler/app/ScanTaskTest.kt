@@ -1,4 +1,4 @@
-package com.example.demo.app
+package cz.tobice.projects.diskspaceprofiler.app
 
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock

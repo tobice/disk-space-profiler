@@ -1,7 +1,7 @@
-package com.example.demo.view
+package cz.tobice.projects.diskspaceprofiler.view
 
-import com.example.demo.app.AppViewModel
-import com.example.demo.app.getDisplayFileSize
+import cz.tobice.projects.diskspaceprofiler.app.AppViewModel
+import cz.tobice.projects.diskspaceprofiler.app.getDisplayFileSize
 import tornadofx.*
 
 // TODO: move to a better place

@@ -1,4 +1,4 @@
-package com.example.demo.view
+package cz.tobice.projects.diskspaceprofiler.view
 
 import tornadofx.*
 

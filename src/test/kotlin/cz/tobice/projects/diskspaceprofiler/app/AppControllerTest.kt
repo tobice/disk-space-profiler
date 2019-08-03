@@ -1,6 +1,6 @@
-package com.example.demo.app
+package cz.tobice.projects.diskspaceprofiler.app
 
-import com.example.demo.app.AppViewModel.Status
+import cz.tobice.projects.diskspaceprofiler.app.AppViewModel.Status
 import javafx.stage.Stage
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.hasItems

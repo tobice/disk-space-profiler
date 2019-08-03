@@ -1,8 +1,8 @@
-package com.example.demo.view
+package cz.tobice.projects.diskspaceprofiler.view
 
-import com.example.demo.app.AppController
-import com.example.demo.app.AppViewModel.Status
-import com.example.demo.app.AppViewModel
+import cz.tobice.projects.diskspaceprofiler.app.AppController
+import cz.tobice.projects.diskspaceprofiler.app.AppViewModel.Status
+import cz.tobice.projects.diskspaceprofiler.app.AppViewModel
 import javafx.event.ActionEvent
 import javafx.scene.Node
 import javafx.scene.Scene

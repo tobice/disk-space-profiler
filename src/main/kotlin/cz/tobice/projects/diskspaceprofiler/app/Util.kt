@@ -1,4 +1,4 @@
-package com.example.demo.app
+package cz.tobice.projects.diskspaceprofiler.app
 
 import java.util.*
 
