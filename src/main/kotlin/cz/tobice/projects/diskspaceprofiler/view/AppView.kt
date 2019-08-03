@@ -3,15 +3,16 @@ package cz.tobice.projects.diskspaceprofiler.view
 import cz.tobice.projects.diskspaceprofiler.app.AppViewModel.Status
 import cz.tobice.projects.diskspaceprofiler.app.AppController
 import cz.tobice.projects.diskspaceprofiler.app.AppViewModel
+import cz.tobice.projects.diskspaceprofiler.app.getDisplayFileSize
+import javafx.scene.Node
+import javafx.scene.layout.Priority
 import tornadofx.*
 
 class AppView : View("Disk Space Profiler") {
     private val appViewModel: AppViewModel by inject()
     private val appController: AppController by inject()
 
-    private val welcomeView: WelcomeView by inject()
     private val scanningResultView: ScanningResultView by inject()
-    private val scanningInProgressView: ScanningInProgressView by inject()
 
     private val status = appViewModel.status
 
@@ -45,14 +46,40 @@ class AppView : View("Disk Space Profiler") {
         center = hbox {
             status.onChange {
                 children.clear()
-                when (status.value) {
-                    Status.WELCOME_SCREEN -> add(welcomeView)
-                    Status.SCANNING_FINISHED -> add(scanningResultView)
-                    Status.SCANNING_IN_PROGRESS -> add(scanningInProgressView)
-                    else -> label("Unsupported status: " + status.value)
-                }
+                add(renderMainScreen())
             }
-            add(welcomeView)
+            add(renderMainScreen())
+        }
+    }
+
+    private fun renderMainScreen(): Node {
+        return when (status.value) {
+            Status.WELCOME_SCREEN ->
+                renderCenteredMessage("Welcome to Disk File Profiler")
+            Status.SCANNING_CANCELLED ->
+                renderCenteredMessage("Scanning was canceled")
+            Status.SCANNING_FAILED ->
+                renderCenteredMessage("Scanning failed. Please check the logs for errors")
+            Status.SCANNING_IN_PROGRESS -> stackpane {
+                hboxConstraints {
+                    hGrow = Priority.ALWAYS
+                }
+                label(appViewModel.runningSize.stringBinding {
+                    "So far scanned " + getDisplayFileSize(it?.toLong() ?: 0) + " of data..."
+                })
+            }
+            Status.SCANNING_FINISHED -> scanningResultView.root
+            null -> renderCenteredMessage("Unknown status of the app")
+        }
+    }
+
+    private fun renderCenteredMessage(message: String): Node {
+        return stackpane {
+            hboxConstraints {
+                hGrow = Priority.ALWAYS
+            }
+            label(message)
         }
     }
 }
+

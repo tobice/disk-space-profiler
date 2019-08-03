@@ -7,6 +7,7 @@ import javafx.event.ActionEvent
 import javafx.scene.Node
 import javafx.scene.Scene
 import javafx.scene.control.Button
+import javafx.scene.control.Labeled
 import javafx.stage.Stage
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -41,17 +42,17 @@ class AppViewTest : ApplicationTest() {
         }
     }
 
+
+    @Test fun welcomeScreen_welcomeMessageShown() {
+        verifyThat(labelWithText("Welcome to Disk File Profiler"), NodeMatchers.isVisible())
+    }
+
+    @Test fun welcomeScreen_chooseDirectoryToAnalyzeButton_enabled() {
+        verifyThat(buttonByLabel("Choose directory to analyze")) { b -> !b.isDisabled }
+    }
+
     @Test fun welcomeScreen_startScanningButton_disabled() {
         verifyThat(buttonByLabel("Start scanning")) { b -> b.isDisabled }
-    }
-
-    @Test fun welcomeScreen_welcomeViewShown() {
-        verifyThat("#welcomeView", NodeMatchers.isVisible())
-        assertTrue { lookup("#scanningInProgressView").queryAll<Node>().isEmpty() }
-    }
-
-    @Test fun welcomeScreen_chooseDirectoryToAnalyzeButton_disabled() {
-        verifyThat(buttonByLabel("Choose directory to analyze")) { b -> !b.isDisabled }
     }
 
     @Test fun scanningInProgress_chooseDirectoryToAnalyzeButton_disabled() {
@@ -75,6 +76,10 @@ class AppViewTest : ApplicationTest() {
 
     private fun buttonByLabel(label: String): Button {
         return lookup(LabeledMatchers.hasText(label)).queryButton()
+    }
+
+    private fun labelWithText(text: String): Labeled {
+        return lookup(LabeledMatchers.hasText(text)).queryLabeled()
     }
 
     /**
