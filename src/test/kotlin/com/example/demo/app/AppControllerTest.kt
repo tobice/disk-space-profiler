@@ -107,7 +107,7 @@ class AppControllerTest : ApplicationTest() {
 
     @Test fun changeToChildDirectory_updatesSelectedNodeModel() {
         val child = Node(File("some_subdirectory"))
-        val selected = Node(SOME_ROOT_DIRECTORY, listOf(child))
+        val selected = Node(SOME_ROOT_DIRECTORY, childNodes = listOf(child))
         selectedNodeModel.item = selected
 
         appController.changeToChildDirectory(child)
@@ -118,7 +118,7 @@ class AppControllerTest : ApplicationTest() {
     @Test
     fun changeToChildDirectory_addSelectedToStack() {
         val child = Node(File("some_subdirectory"))
-        val selected = Node(SOME_ROOT_DIRECTORY, listOf(child))
+        val selected = Node(SOME_ROOT_DIRECTORY, childNodes = listOf(child))
         selectedNodeModel.item = selected
 
         appController.changeToChildDirectory(child)
@@ -131,7 +131,7 @@ class AppControllerTest : ApplicationTest() {
     @Test
     fun changeToParentDirectory_updatesSelectedNodeModel() {
         val selected = Node(File("some_subdirectory"))
-        val parent = Node(SOME_ROOT_DIRECTORY, listOf(selected))
+        val parent = Node(SOME_ROOT_DIRECTORY, childNodes = listOf(selected))
         selectedNodeModel.item = selected
         appViewModel.directoryStack.add(parent)
 

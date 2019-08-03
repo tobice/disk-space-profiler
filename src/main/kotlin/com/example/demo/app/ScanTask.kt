@@ -18,21 +18,25 @@ class ScanTask(private val rootDirectory: File) : Task<Node>() {
     }
 
     private fun scanFile(file : File) : Node {
-        if (file.isFile) {
-            runningSize += file.length()
-            onRunningSizeUpdated?.invoke(runningSize)
-        }
-
         return when {
             // We need to check for symbolic links first as they can also be directories.
-            Files.isSymbolicLink(file.toPath()) || file.isFile -> Node(file)
-            file.isDirectory ->
-                if (isCancelled) Node(file) else
-                    Node(file, file.listFiles()?.mapNotNull(this::scanFile) ?: emptyList())
+            Files.isSymbolicLink(file.toPath()) -> Node(file, size = 0)
+            file.isFile -> {
+                runningSize += file.length()
+                onRunningSizeUpdated?.invoke(runningSize)
+                Node(file, file.length())
+            }
+            file.isDirectory -> {
+                if (isCancelled) {
+                    return Node(file, size = 0)
+                }
+                val childNodes = file.listFiles()?. mapNotNull (this::scanFile) ?: emptyList()
+                Node(file, childNodes.map { node -> node.size }.sum(), childNodes)
+            }
             else -> {
                 println("Found $file which is neither an ordinary file nor a directory. " +
                         "Not sure what to do.")
-                Node(file)
+                Node(file, size = 0)
             }
         }
     }
