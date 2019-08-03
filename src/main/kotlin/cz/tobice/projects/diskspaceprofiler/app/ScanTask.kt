@@ -5,19 +5,35 @@ import java.io.File
 import java.lang.AssertionError
 import java.nio.file.Files
 
-/** TODO(tobik): Add JavaDoc here. */
-// TODO(tobik): The actual Task should be an internal private property.
-// Now it's possible to start the task manually outside of the Scanner.
+/**
+ * Analyzes the size of {@param rootDirectory}.
+ *
+ * <p>It produces a tree structure of nodes that corresponds to the tree structure of files and
+ * directories in {@param rootDirectory}. Each node has a size property of how much space the
+ * corresponding file or directory take up on the disk.
+ *
+ * <p>The returned root {@link Node} corresponds to {@param rootDirectory}.
+ *
+ * <p>It is implemented as {@link Task} which can be run on a separate thread and can be cancelled.
+ *
+ * <p>It reports the total running size of all files that have been analyzed so far. When the task
+ * finishes, the reported running size corresponds to the actual total size.
+ */
 class ScanTask(private val rootDirectory: File) : Task<Node>() {
 
     private var runningSize: Long = 0
 
+    /**
+     * The onRunningSizeUpdate handler is invoked whenever a new file is scanned. It receives as a
+     * param the updated running size of all files that have been scanned so far.
+     */
     var onRunningSizeUpdated: ((runningSize: Long) -> Unit)? = null
 
     override fun call(): Node {
         return scanFile(rootDirectory)
     }
 
+    /** A simple recursive function that searches through all files in {@code rootDirectory}. */
     private fun scanFile(file : File) : Node {
         return when {
             // We need to check for symbolic links first as they can also be directories.

@@ -14,11 +14,13 @@ import org.testfx.framework.junit5.ApplicationTest
 import java.nio.file.Files
 import java.nio.file.Path
 
-/** TODO(tobik): Add JavaDoc here. */
 class ScanTaskTest : ApplicationTest() {
 
-    @TempDir
-    lateinit var tempDir: Path
+    /**
+     * A temporary test directory where we create a few files in a directory structure that we'll
+     * test the {@link ScanTask} against.
+     */
+    @TempDir lateinit var tempDir: Path
 
     private lateinit var scanTask: ScanTask
     private lateinit var runningSizeListenerMock: (Long) -> Unit
@@ -26,17 +28,17 @@ class ScanTaskTest : ApplicationTest() {
     @BeforeEach fun setUp() {
         runningSizeListenerMock = mock()
 
-        createFile("file1", 1)
-        createFile("file2", 2)
-        createFile("file3", 3)
+        createFile("file1", size = 1)
+        createFile("file2", size = 2)
+        createFile("file3", size = 3)
         mkdir("subdir1")
-        createFile("subdir1/file1", 4)
-        createFile("subdir1/file2", 5)
-        createFile("subdir1/file3", 6)
+        createFile("subdir1/file1", size = 4)
+        createFile("subdir1/file2", size = 5)
+        createFile("subdir1/file3", size = 6)
         mkdir("subdir2")
         mkdir("subdir3")
         mkdir("subdir3/subdir4")
-        createFile("subdir3/subdir4/file1", 7)
+        createFile("subdir3/subdir4/file1", size = 7)
 
         scanTask = ScanTask(tempDir.toFile())
         scanTask.onRunningSizeUpdated = runningSizeListenerMock
