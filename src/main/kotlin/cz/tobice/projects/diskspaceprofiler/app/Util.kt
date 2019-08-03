@@ -4,6 +4,7 @@ import java.util.*
 import java.util.logging.Logger
 import kotlin.reflect.full.companionObject
 
+/** Converts size in bytes into a more human readable version with proper units. */
 fun getDisplayFileSize(sizeInBytes: Long): String {
     var displaySize: Double = sizeInBytes.toDouble()
     val stack = Stack<String>()
@@ -13,6 +14,20 @@ fun getDisplayFileSize(sizeInBytes: Long): String {
         stack.pop()
     }
     return "${Math.round(displaySize)} ${stack.pop()}"
+}
+
+/** A simple throttler utility that invokes the callable at most every {@code delayMillis}. */
+class Throttler(val delayMillis: Int) {
+
+    private var lastInvocationMillis: Long = 0
+
+    fun invoke(callable: () -> Unit) {
+        val currentTimeMillis = System.currentTimeMillis()
+        if (currentTimeMillis - lastInvocationMillis > delayMillis) {
+            callable()
+            lastInvocationMillis = currentTimeMillis
+        }
+    }
 }
 
 /**

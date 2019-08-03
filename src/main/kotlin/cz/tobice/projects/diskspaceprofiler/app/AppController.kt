@@ -29,7 +29,7 @@ class AppController : Controller() {
     }
 
     fun changeToChildDirectory(node: Node) {
-        if (!selectedNodeModel.childNodes.contains(node)) {
+        if (!selectedNodeModel.sortedChildNodes.contains(node)) {
             log.warning("Can't change to directory. Not a subdirectory")
             return
         }

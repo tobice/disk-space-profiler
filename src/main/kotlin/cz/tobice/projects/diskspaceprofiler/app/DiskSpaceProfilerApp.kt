@@ -4,10 +4,10 @@ import cz.tobice.projects.diskspaceprofiler.view.AppView
 import javafx.application.Platform
 import tornadofx.App
 
-class MyApp: App(AppView::class, Styles::class) {
+class DiskSpaceProfilerApp: App(AppView::class, Styles::class) {
     override fun stop() {
         super.stop()
-        // To kill the scan task in the background.
+        // To kill the scan task in the background if needed.
         Platform.exit()
         System.exit(0)
     }

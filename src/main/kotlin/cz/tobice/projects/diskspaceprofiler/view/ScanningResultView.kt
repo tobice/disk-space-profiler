@@ -28,7 +28,7 @@ class ScanningResultView : View() {
             // TODO(tobik): Make the scroll pane fill the whole width.
             //  ('Cause that's the real challenge around here.)
             vbox {
-                bindChildren(selectedNodeModel.childNodes) {
+                bindChildren(selectedNodeModel.sortedChildNodes) {
                     hbox {
                         if (it.file.isDirectory) {
                             hyperlink(it.file.name) {
