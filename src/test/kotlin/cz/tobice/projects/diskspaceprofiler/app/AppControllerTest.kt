@@ -11,6 +11,7 @@ import org.mockito.Mockito.*
 import org.testfx.framework.junit5.ApplicationTest
 import tornadofx.*
 import java.io.File
+import kotlin.test.assertTrue
 
 class AppControllerTest : ApplicationTest() {
     companion object {
@@ -58,6 +59,13 @@ class AppControllerTest : ApplicationTest() {
         appController.setTargetDirectory(SOME_ROOT_DIRECTORY)
         appController.startScanning()
         assertThat(appViewModel.status.value, equalTo(Status.SCANNING_IN_PROGRESS))
+    }
+
+    @Test fun startScanning_emptiesDirectoryStack() {
+        appViewModel.directoryStack.add(Node(SOME_ROOT_DIRECTORY))
+        appController.setTargetDirectory(SOME_ROOT_DIRECTORY)
+        appController.startScanning()
+        assertTrue { appViewModel.directoryStack.isEmpty() }
     }
 
     // TODO(tobik): Test that it is not possible to start scanning without root directory.

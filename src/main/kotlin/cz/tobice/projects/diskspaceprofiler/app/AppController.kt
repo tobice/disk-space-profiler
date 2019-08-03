@@ -36,7 +36,10 @@ class AppController : Controller() {
 
     fun startScanning() {
         // TODO: Make sure that target directory is set.
+
         setStatus(Status.SCANNING_IN_PROGRESS)
+        appViewModel.runningSize.value = 0
+        appViewModel.directoryStack.clear()
 
         val scanTask = scanner.createScanTask(appViewModel.targetDirectory.value)
 
@@ -67,7 +70,6 @@ class AppController : Controller() {
             }
         }
 
-        appViewModel.runningSize.value = 0
         this.scanTask = scanTask
 
         scanner.startScanTask(scanTask)
