@@ -1,2 +1,7 @@
 # This allows Mockito to mock final classes #sorcery
+#
+# This is pretty much a hack to bypass Kotlin's behavior that all classes are by default final.
+# Which they should be but it makes testing harder. The obvious solution here is to use interfaces,
+# which would arguably be lots of pointless grunt work as those interfaces would exist only for the
+# sole purpose of testing. So... it's nice to have this hack.
 mock-maker-inline
